@@ -1,5 +1,6 @@
 import Data.List
 import System.Environment
+import System.IO
 
 doCalc :: Int -> Int
 doCalc x =
@@ -12,8 +13,19 @@ recurseCalc total x
   where
     value = doCalc x
 
+mainHelper total =
+  do
+    iseof <- isEOF
+    if iseof
+      then putStrLn $ "Total: " ++ (show total)
+      else do
+        line <- getLine
+        if null line
+          then putStrLn $ "Total: " ++ (show total)
+          else do
+            let fuel = recurseCalc 0 (read line)
+            putStrLn (show fuel)
+            mainHelper $ total + fuel
+
 main = do
-  args <- getArgs
-  content <- getContents
-  let fuels = (map ((recurseCalc 0) . read) $ lines content)
-  putStrLn (show (sum fuels))
+  mainHelper 0
