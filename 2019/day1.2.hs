@@ -7,7 +7,9 @@ doCalc x =
   floor (fromIntegral (x) / 3) - 2
 
 recurseCalc x =
-  takeWhile (>= 0) (drop 1 (iterate doCalc x))
+  takeWhile (>= 0)
+    . drop 1
+    $ iterate doCalc x
 
 mainHelper total =
   do
