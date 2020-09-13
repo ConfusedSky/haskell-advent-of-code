@@ -1,35 +1,32 @@
-import Data.List
-import System.Environment
-import System.IO
+import Data.Foldable (Foldable (null))
+import Data.Sequence as Seq (Seq, fromList, index, update, (!?))
+import System.IO (isEOF)
 
-replaceNth :: Int -> a -> [a] -> [a]
-replaceNth _ _ [] = []
-replaceNth n newVal (x : xs)
-  | n == 0 = newVal : xs
-  | otherwise = x : replaceNth (n - 1) newVal xs
-
-getOps array index =
+getOps :: Seq Int -> Int -> (Int, Int, Int)
+getOps array i =
   (op1, op2, op3)
   where
-    op1 = array !! (array !! (index + 1))
-    op2 = array !! (array !! (index + 2))
-    op3 = array !! (index + 3)
+    op1 = array `index` (array `index` (i + 1))
+    op2 = array `index` (array `index` (i + 2))
+    op3 = array `index` (i + 3)
 
+performOp :: (Int -> Int -> Int) -> Seq Int -> Int -> Seq Int
 performOp op array index =
   newArray
   where
     (op1, op2, op3) = getOps array index
     newValue = op op1 op2
-    newArray = replaceNth op3 newValue array
+    newArray = update op3 newValue array
 
-handleCalcs array index =
-  case array !! index of
-    1 -> do
-      handleCalcs (performOp (+) array index) $ index + 4
-    2 -> do
-      handleCalcs (performOp (*) array index) $ index + 4
-    99 ->
-      array !! 0
+handleCalcs :: Seq Int -> Int -> Int
+handleCalcs array i =
+  case array !? i of
+    Just 1 -> do
+      handleCalcs (performOp (+) array i) $ i + 4
+    Just 2 -> do
+      handleCalcs (performOp (*) array i) $ i + 4
+    Just 99 ->
+      array `index` 0
     _ ->
       -1
 
@@ -41,8 +38,8 @@ possibleInputs =
 nounVerbResult array noun verb =
   handleCalcs newArray 0
   where
-    nounChange = replaceNth 1 noun array
-    newArray = replaceNth 2 verb nounChange
+    nounChange = update 1 noun array
+    newArray = update 2 verb nounChange
 
 getAnswer array value =
   head
@@ -60,5 +57,5 @@ main = do
       if null line
         then putStrLn $ "No input"
         else do
-          let array = read line :: [Int]
+          let array = fromList $ (read line :: [Int])
           putStrLn . show $ getAnswer array 19690720
