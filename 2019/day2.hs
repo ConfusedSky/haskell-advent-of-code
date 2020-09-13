@@ -33,8 +33,10 @@ handleCalcs array index =
         handleCalcs (performOp (*) array index) $ index + 4
       Just 99 ->
         putStrLn "Exit"
-      _ ->
+      Just _ ->
         putStrLn "Invalid opcode"
+      Nothing ->
+        putStrLn "No value here"
 
 startCalc :: [Int] -> IO ()
 startCalc array =
