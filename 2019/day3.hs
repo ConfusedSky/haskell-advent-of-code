@@ -1,5 +1,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
+import Data.List.Split (splitOn)
+import Data.Maybe (catMaybes)
+
 data Point = Point
   { x :: Int,
     y :: Int
@@ -19,7 +22,13 @@ data LineSegment = LineSegment
   }
 
 instance Show LineSegment where
-  show (LineSegment o d l) = show o ++ show d ++ show l ++ "\n"
+  show (LineSegment o d l) =
+    show o
+      ++ " "
+      ++ show d
+      ++ " "
+      ++ show l
+      ++ "\n"
 
 createSegment x y d l =
   LineSegment {origin = Point {x, y}, direction = d, len = l}
@@ -50,6 +59,23 @@ lineCollision first second =
     parallel = direction first == direction second
     ox = x . origin
     oy = y . origin
+
+lineCollisions :: [LineSegment] -> LineSegment -> [Point]
+lineCollisions l second =
+  catMaybes
+    . map (lineCollision second)
+    $ l
+
+linesCollisions :: [LineSegment] -> [LineSegment] -> [Point]
+linesCollisions l l2 =
+  concat
+    . map (lineCollisions l2)
+    $ l
+
+answer l1 l2 =
+  minimum
+    . map (\(Point x y) -> (abs x) + (abs y))
+    $ linesCollisions l1 l2
 
 parseLine p (d : value) =
   case d of
@@ -89,3 +115,11 @@ parseLinesHelper (x : xs) a p =
 parseLines d =
   reverse $
     parseLinesHelper d [] center
+
+parseString =
+  parseLines
+    . splitOn ","
+
+-- Use this function in ghci to get the correct answer
+fromStrings s s2 =
+  answer (parseString s) (parseString s2)
