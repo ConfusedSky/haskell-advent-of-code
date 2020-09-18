@@ -9,7 +9,12 @@ data Point = Point
   }
 
 instance Show Point where
-  show (Point x y) = "(" ++ show x ++ ", " ++ show y ++ ")"
+  show (Point x y) =
+    "("
+      ++ show x
+      ++ ", "
+      ++ show y
+      ++ ")"
 
 center = Point 0 0
 
@@ -31,14 +36,14 @@ instance Show LineSegment where
       ++ "\n"
 
 createSegment x y d l =
-  LineSegment {origin = Point {x, y}, direction = d, len = l}
+  LineSegment (Point x y) d l
 
 shiftPoint (Point {x, y}) dir amount =
   case dir of
     U ->
-      Point {x = x, y = y + amount}
+      Point x (y + amount)
     R ->
-      Point {x = x + amount, y = y}
+      Point (x + amount) y
 
 lineCollision :: LineSegment -> LineSegment -> Maybe Point
 lineCollision first second =
@@ -80,27 +85,19 @@ answer l1 l2 =
 parseLine p (d : value) =
   case d of
     'R' ->
-      ( LineSegment {origin = p, direction = R, len = distance},
+      ( LineSegment p R distance,
         shiftPoint p R distance
       )
     'L' ->
-      ( LineSegment
-          { origin = (shiftPoint p R (- distance)),
-            direction = R,
-            len = distance
-          },
+      ( LineSegment (shiftPoint p R (- distance)) R distance,
         shiftPoint p R (- distance)
       )
     'U' ->
-      ( LineSegment {origin = p, direction = U, len = distance},
+      ( LineSegment p U distance,
         shiftPoint p U distance
       )
     'D' ->
-      ( LineSegment
-          { origin = (shiftPoint p U (- distance)),
-            direction = U,
-            len = distance
-          },
+      ( LineSegment (shiftPoint p U (- distance)) U distance,
         shiftPoint p U (- distance)
       )
   where
