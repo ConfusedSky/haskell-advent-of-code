@@ -102,31 +102,33 @@ answer l1 l2 =
     . map (\(_, z) -> z)
     $ linesCollisions l1 l2
 
-parseLine p (d : value) totald =
+parseLine p (d : value) distanceToPoint =
   case d of
     'R' ->
-      ( LineSegment p R distance totald False,
+      ( LineSegment p R distance distanceToPoint False,
         shiftPoint p R distance,
-        totalDist
+        totalDistance
       )
     'L' ->
-      ( LineSegment (shiftPoint p R (- distance)) R distance totald True,
-        shiftPoint p R (- distance),
-        totalDist
+      ( LineSegment lp R distance distanceToPoint True,
+        lp,
+        totalDistance
       )
     'U' ->
-      ( LineSegment p U distance totald False,
+      ( LineSegment p U distance distanceToPoint False,
         shiftPoint p U distance,
-        totalDist
+        totalDistance
       )
     'D' ->
-      ( LineSegment (shiftPoint p U (- distance)) U distance totald True,
-        shiftPoint p U (- distance),
-        totalDist
+      ( LineSegment dp U distance distanceToPoint True,
+        dp,
+        totalDistance
       )
   where
     distance = read value :: Int
-    totalDist = totald + distance
+    totalDistance = distanceToPoint + distance
+    lp = shiftPoint p R (- distance)
+    dp = shiftPoint p U (- distance)
 
 parseLinesHelper [] a _ _ = a
 parseLinesHelper (x : xs) a p td =

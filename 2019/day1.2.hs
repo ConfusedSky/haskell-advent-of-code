@@ -1,5 +1,3 @@
-import Data.List
-import System.Environment
 import System.IO
 
 doCalc :: Int -> Int
